@@ -1,0 +1,13 @@
+name: rnaseq_post
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python>=3.8
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - gseapy
+  - mygene

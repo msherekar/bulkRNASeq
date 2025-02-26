@@ -1,0 +1,46 @@
+# Snakemake configuration file
+
+# Sample information
+samples:
+  - "pranay"  # List all your sample names here (without file extensions)
+
+# Directory structure
+directories:
+  raw_data: "tests/data/raw_fastq"
+  results: "tests/data/snakemake_results"
+  logs: "logs"
+
+# Reference files
+genome:
+  fasta: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/GRCh38.p13.genome.fa"
+  gtf: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/gencode.v38.annotation.gtf"
+  transcriptome: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/gencode.v47.transcripts.fa.gz"
+
+# Aligner configurations
+aligners:
+  hisat2:
+    index_prefix: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/genome"
+    threads: 8
+  kallisto:
+    index: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/kallisto_index"
+    threads: 4
+    fragment_length: 200  # For single-end reads
+    fragment_sd: 20       # For single-end reads
+
+# Feature counting parameters
+featurecounts:
+  threads: 4
+  strand: 0  # 0=unstranded, 1=stranded, 2=reversely stranded
+
+# Quality control parameters
+fastqc:
+  threads: 4
+
+# Analysis parameters
+analysis:
+  top_genes: 15  # Number of top genes to show in final report
+  enrichment:
+    gene_sets: ["GO_Biological_Process_2021", "GO_Molecular_Function_2021"]
+    p_value_cutoff: 0.05
+  clustering:
+    min_counts: 10  # Minimum counts to include in clustering

@@ -1,0 +1,87 @@
+name: rnaseq
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Python and core packages
+  - python=3.12.2
+  - pip=25.0
+  - numpy=2.1.3
+  - pandas=2.2.3
+  - scipy=1.15.1
+  - matplotlib=3.10.0
+  - seaborn=0.13.2
+  - scikit-learn=1.6.1
+
+  # Bioinformatics tools
+  - fastqc=0.12.1
+  - subread=2.0.8
+  - samtools=1.21
+  - hisat2=2.2.1
+  - kallisto=0.51.1
+  - bioconductor-biocparallel=1.40.0
+
+  # Analysis packages
+  - scanpy=1.10.4
+  - anndata=0.11.3
+  - statsmodels=0.14.4
+  - h5py=3.12.1
+  - xgboost=2.1.1
+
+  # Development tools
+  - jupyter
+  - ipykernel=6.29.5
+  - tqdm=4.67.1
+  - black
+  - flake8
+
+  # R and R packages
+  - r-base=4.4.2
+  - r-essentials=4.4
+  - r-tidyverse=2.0.0
+  - r-deseq2
+
+  # Deep learning
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  - torchaudio=2.5.1
+
+  # Additional dependencies
+  - pip:
+    - gseapy==0.9.5
+    - goatools
+    - umap-learn==0.5.7
+    - hdbscan==0.8.39
+    - legacy-api-wrap==1.4.1
+    - pynndescent==0.5.13
+  # Bioinformatics and analysis
+  - seaborn
+  - statsmodels
+  - h5py==3.12.1
+  # Development and utility packages
+  - jupyter
+  - ipykernel
+  - tqdm==4.67.1
+  - pip
+  - pip:
+    # Additional pip-specific packages
+    - gseapy==0.9.5
+    - goatools
+    - torch
+    - torchvision
+    - torchaudio
+    - xgboost
+    - umap-learn==0.5.7
+    - hdbscan
+  # Bioinformatics tools
+  - star
+  - multiqc
+  - cutadapt
+  - htseq
+  - bioconductor-deseq2
+  - snakemake
+  # Development tools
+  - pytest
+  - black
+  - flake8 

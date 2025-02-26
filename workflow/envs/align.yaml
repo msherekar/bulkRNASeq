@@ -1,0 +1,8 @@
+name: rnaseq_align
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - hisat2=2.2.1
+  - samtools=1.17
+  - kallisto=0.48.0

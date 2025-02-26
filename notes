@@ -1,0 +1,33 @@
+# KALLISTO
+$ /Users/mukulsherekar/yes/envs/rnaseq/bin/kallisto quant -i /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/kallisto_index -o tests/data/results/kallisto --single -l 200 -s 20 tests/data/raw_fastq/pranay.fq.gz
+
+# OUTPUT of indexing for Kallisto
+[quant] fragment length distribution is truncated gaussian with mean = 200, sd = 20
+[index] k-mer length: 31
+[index] number of targets: 385,659
+[index] number of k-mers: 176,942,276
+[quant] running in single-end mode
+[quant] will process file 1: tests/data/raw_fastq/pranay.fq.gz
+[progress] 37M reads processed (91.3% mapped)              done
+[quant] processed 38,620,830 reads, 35,276,537 reads pseudoaligned
+[   em] quantifying the abundances ... done
+[   em] the Expectation-Maximization algorithm ran for 1,688 rounds
+
+# After installation
+bulkrnaseq --mode preprocessing [additional args]
+# or
+python -m bulkrnaseq --mode postprocessing [additional args]
+
+# or
+python -m bulkrnaseq --mode processing [additional args]
+
+fix this later
+The actual data columns are:
+Geneid (gene IDs like ENSG00000223972.5)
+Chr (chromosome locations, sometimes multiple locations per gene)
+Start (start positions, sometimes multiple per gene)
+End (end positions, sometimes multiple per gene)
+Strand (+ or - strand info)
+Length (numeric value representing gene length)
+The last column contains the actual counts from the BAM file (named "tests/data/results/aligned/pranay.bam")
+The issue is that our code is looking for a column named 'raw_counts', but this file doesn't have that exact column name. Instead, the counts are in the last column named "tests/data/results/aligned/pranay.bam".

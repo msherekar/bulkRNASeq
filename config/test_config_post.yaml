@@ -1,0 +1,23 @@
+input:
+  counts_file: "tests/data/results/counts/pranay.bam_counts.tsv"
+  kallisto_abundance: "tests/data/results/kallisto/abundance.tsv"
+
+output:
+  results_dir: "tests/data/results/postprocessing"
+
+parameters:
+  distribution: true
+  top_genes: 10
+  gene_threshold: 10
+  expected_library_size: 0
+  go_enrichment: true
+  network_analysis: true
+  top_percent: 5
+  threads: 8
+
+visualization:
+  pca:
+    color_by: "condition"
+  volcano:
+    log2fc_cutoff: 1.0
+    padj_cutoff: 0.05

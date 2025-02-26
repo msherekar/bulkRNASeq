@@ -1,0 +1,76 @@
+# Combined configuration for preprocessing and postprocessing
+
+# Sample information
+samples:
+  - "pranay"  # This should match your fastq filename without the .fq.gz extension
+
+# Input data
+input:
+  # Preprocessing inputs
+  fastq_dir: "tests/data/raw_fastq"
+  fastq_pattern: "*.fq.gz"
+  paired_end: false
+  sample_sheet: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/sample_sheet.csv"
+  
+  # Postprocessing inputs
+  counts_file: "tests/data/results/counts/pranay.bam_counts.tsv"
+  kallisto_abundance: "tests/data/results/kallisto/abundance.tsv"
+
+# Output directories
+output:
+  # Base output directory
+  results_dir: "tests/data/results"
+  
+  # Preprocessing outputs
+  qc_dir: "tests/data/results/preprocessing/qc"
+  alignment_dir: "tests/data/results/preprocessing/aligned_reads"
+  counts_dir: "tests/data/results/preprocessing/counts"
+  
+  # Postprocessing outputs
+  postprocessing_dir: "tests/data/results/postprocessing"
+
+# Reference genome information
+genome:
+  # GTF annotation file
+  gtf_file: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/gencode.v38.annotation.gtf"
+  # Reference genome FASTA
+  genome_fasta: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/GRCh38.p13.genome.fa"
+  # Transcriptome FASTA
+  transcriptome_fasta: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/gencode.v47.transcripts.fa.gz"
+
+# Aligner configurations
+aligners:
+  hisat2:
+    # HISAT2 index prefix (path without .X.ht2 extension)
+    index_prefix: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/genome"
+  kallisto:
+    # Kallisto index
+    index: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/kallisto_index"
+    # Single-end parameters
+    fragment_length: 200  # Estimated fragment length for single-end reads
+    fragment_sd: 20      # Estimated fragment length standard deviation
+
+# Analysis parameters
+parameters:
+  # Preprocessing parameters
+  quality_threshold: 20
+  min_length: 36
+  adapter_stringency: 0.9
+  
+  # Postprocessing parameters
+  distribution: true
+  top_genes: 15
+  gene_threshold: 10
+  expected_library_size: 0
+  go_enrichment: true
+  network_analysis: true
+  top_percent: 5
+  threads: 8
+
+# Visualization settings (for postprocessing)
+visualization:
+  pca:
+    color_by: "condition"
+  volcano:
+    log2fc_cutoff: 1.0
+    padj_cutoff: 0.05 

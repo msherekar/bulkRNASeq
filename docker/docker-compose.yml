@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MAX_WORKERS=4
+    depends_on:
+      - bulkrnaseq
+
+  bulkrnaseq:
+    build: .
+    volumes:
+      - ./data/input:/data/input
+      - ./data/output:/data/output
+      - ./data/reference:/data/reference
+      - ./data/logs:/data/logs
+    environment:
+      - MODE=processing
+      - THREADS=8
+    deploy:
+      resources:
+        limits:
+          memory: 32G
+        reservations:
+          memory: 16G 
