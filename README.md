@@ -1,106 +1,129 @@
 # Bulk RNA Sequencing Analysis Pipeline
 
-A comprehensive pipeline for analyzing bulk RNA sequencing data, including both preprocessing and postprocessing steps.
+A comprehensive Snakemake-based pipeline for analyzing bulk RNA sequencing data, from raw FASTQ files to differential expression and pathway analysis.
 
-## Installation
+## Features
 
-### Prerequisites
+- Quality control with FastQC
+- Read alignment with HISAT2
+- Transcript quantification with Kallisto
+- Gene expression counting with featureCounts
+- Differential expression analysis
+- GO enrichment analysis using GSEAPY
+- Comprehensive final report generation
+- Automated workflow management with Snakemake
 
-- Python ≥3.12
+## Prerequisites
+
+- Python ≥3.8
 - Conda package manager
   - If you don't have conda, install it from [here](https://docs.conda.io/en/latest/miniconda.html)
 
-### Setup
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/bulkrnaseq.git
-cd bulkrnaseq
+git clone https://github.com/msherekar/bulkRNASeq.git
+cd bulkRNASeq
 ```
 
-2. Create and activate the conda environment:
+2. Install the package and dependencies:
 ```bash
-python scripts/create_env.py
-conda activate rnaseq
+# Install with all dependencies
+pip install -e .[all]
+
+# Or install specific components
+pip install -e .[qc,align]  # For just QC and alignment
+pip install -e .[post]      # For just postprocessing
 ```
 
-3. Install the package in development mode:
+## Usage
+
+### Configuration
+
+1. Edit `config/snakemake_config.yaml` to set:
+   - Sample information
+   - Input/output directories
+   - Reference genome paths
+   - Tool-specific parameters
+
+### Running the Pipeline
+
+1. **Dry run** (see what will be executed):
 ```bash
-pip install -e .
+snakemake --configfile config/snakemake_config.yaml -n
 ```
 
-## Running the Pipeline
-
-### Docker Execution
-
-1. Build and run using Docker:
+2. **Run the full pipeline**:
 ```bash
-# Build the container
-docker build -t bulkrnaseq .
-
-# Run the pipeline
-docker run -v $(pwd)/data/input:/data/input \
-           -v $(pwd)/data/output:/data/output \
-           -v $(pwd)/data/reference:/data/reference \
-           -v $(pwd)/data/logs:/data/logs \
-           -e MODE=preprocessing \
-           -e THREADS=8 \
-           bulkrnaseq
+snakemake --configfile config/snakemake_config.yaml --use-conda -j 4
 ```
 
-2. Or using docker-compose:
+3. **Run specific steps**:
 ```bash
-# Start the pipeline
-docker-compose up
+# Run just QC
+snakemake --configfile config/snakemake_config.yaml --use-conda -j 4 results/qc/{sample}_fastqc.html
 
-# To run with different parameters
-MODE=preprocessing docker-compose up
+# Run up to alignment
+snakemake --configfile config/snakemake_config.yaml --use-conda -j 4 results/aligned/{sample}.bam
 ```
 
-#### Input/Output with Docker
-
-Place your files in these directories:
-```
-data/
-├── input/           # Place your FASTQ files here
-│   ├── sample1_R1.fastq.gz
-│   └── sample1_R2.fastq.gz
-├── output/          # Results will appear here
-├── reference/       # Place reference genome here
-│   ├── genome.fa
-│   └── annotation.gtf
-└── logs/            # Log files will be written here
-```
-
-### Local Execution
-
-You can run the pipeline directly using:
+4. **Generate workflow visualization**:
 ```bash
-python -m bulkrnaseq --mode preprocessing --input-dir data/raw --output-dir results --genome-dir ref_genome --threads 8
+snakemake --configfile config/snakemake_config.yaml --dag | dot -Tpdf > workflow.pdf
 ```
 
-### HPC Cluster Execution
+### Output Structure
 
-1. First, modify the parameters in `launch.sh`:
-```bash
-nano launch.sh
 ```
-Update these values according to your needs:
-```bash
-MODE="preprocessing"  # Choose: preprocessing, postprocessing, or processing
-INPUT_DIR="data/raw"  # Your input data directory
-OUTPUT_DIR="results"  # Where to save results
-GENOME_DIR="ref_genome"  # Reference genome directory
-THREADS=8  # Number of CPU threads to use
+results/
+├── qc/                  # FastQC reports
+├── aligned/             # HISAT2 BAM files
+├── kallisto/            # Kallisto quantification
+├── counts/              # featureCounts output
+└── final_report.md      # Comprehensive analysis report
 ```
 
-2. Submit the job:
-```bash
-sbatch launch.sh
-```
+## Pipeline Steps
 
-This will:
-- Submit the job to the cluster
+1. **Quality Control**
+   - FastQC analysis of raw reads
+   - Quality metrics and contamination check
+
+2. **Alignment & Quantification**
+   - HISAT2 alignment to reference genome
+   - Kallisto transcript quantification
+   - BAM file generation and indexing
+
+3. **Expression Analysis**
+   - Gene-level counting with featureCounts
+   - Expression level visualization
+   - Sample correlation analysis
+
+4. **Functional Analysis**
+   - GO enrichment analysis
+   - Pathway visualization
+   - Final report generation
+
+## Contributing
+
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+
+
+
+
+
+
+
+
+
+
 - Activate the conda environment
 - Run the pipeline with your specified parameters
 - Save logs in the `logs` directory
