@@ -269,7 +269,7 @@ This project belongs to Mukul Sherekar.
 
 Your Name - mukulsherekar@gmail.com
 
-Project Link: [https://github.com/yourusername/bulkrnaseq](https://github.com/yourusername/bulkrnaseq)
+Project Link: [bulkRNASeq](https://github.com/msherekar/bulkRNASeq)
 
 ## API Usage
 
