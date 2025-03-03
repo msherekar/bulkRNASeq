@@ -18,6 +18,7 @@ dependencies:
   - hisat2=2.2.1
   - kallisto=0.51.1
   - multiqc
+  - pydeseq2
   - pip
   - pip:
     - docopt

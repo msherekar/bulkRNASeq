@@ -8,8 +8,7 @@ rule fastqc:
         config["directories"]["logs"] + "/fastqc/{sample}.log"
     params:
         outdir=config["directories"]["results"] + "/qc"
-    conda:
-        "../envs/qc.yaml"
+    
     threads: 
         config["fastqc"]["threads"]
     shell:

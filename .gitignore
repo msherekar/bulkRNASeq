@@ -97,3 +97,12 @@ conda-meta/
 # Folders
 data/
 ref_genome/
+
+# My Files
+dl_notes.txt
+dl_notes.md
+notes.txt
+notes.md
+
+# Snakemake
+.snakemake/

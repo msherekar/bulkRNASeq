@@ -1,37 +1,41 @@
 rule hisat2_align:
     input:
-        fastq="raw_fastq/{sample}.fq.gz",
-        index=lambda wildcards: config["aligners"]["hisat2"]["index_prefix"]
+        fastq=config["directories"]["raw_data"] + "/{sample}.fq.gz",
+        index=multiext(config["aligners"]["hisat2"]["index_prefix"],
+                      ".1.ht2", ".2.ht2", ".3.ht2", ".4.ht2",
+                      ".5.ht2", ".6.ht2", ".7.ht2", ".8.ht2")
     output:
-        bam="results/aligned_reads/{sample}.bam",
-        bai="results/aligned_reads/{sample}.bam.bai"
+        bam=config["directories"]["results"] + "/aligned/{sample}.bam",
+        bai=config["directories"]["results"] + "/aligned/{sample}.bam.bai"
     log:
-        "logs/hisat2/{sample}.log"
-    conda:
-        "../envs/align.yaml"
-    threads: 8
+        config["directories"]["logs"] + "/hisat2/{sample}.log"
+    
+    threads: 
+        config["aligners"]["hisat2"]["threads"]
+    params:
+        index_prefix=lambda wildcards: config["aligners"]["hisat2"]["index_prefix"]
     shell:
         """
-        hisat2 -p {threads} -x {input.index} -U {input.fastq} 2> {log} | \
+        hisat2 -p {threads} -x {params.index_prefix} -U {input.fastq} 2> {log} | \
         samtools sort -@ {threads} -o {output.bam} - && \
         samtools index {output.bam}
         """
 
 rule kallisto_quant:
     input:
-        fastq="raw_fastq/{sample}.fq.gz",
+        fastq=config["directories"]["raw_data"] + "/{sample}.fq.gz",
         index=lambda wildcards: config["aligners"]["kallisto"]["index"]
     output:
-        directory("results/kallisto/{sample}"),
-        abundance="results/kallisto/{sample}/abundance.h5"
+        directory(config["directories"]["results"] + "/kallisto/{sample}"),
+        abundance=config["directories"]["results"] + "/kallisto/{sample}/abundance.h5"
     params:
         fragment_length=lambda wildcards: config["aligners"]["kallisto"].get("fragment_length", 200),
-        sd=lambda wildcards: config["aligners"]["kallisto"].get("sd", 20)
+        sd=lambda wildcards: config["aligners"]["kallisto"].get("fragment_sd", 20)
     log:
-        "logs/kallisto/{sample}.log"
-    conda:
-        "../envs/align.yaml"
-    threads: 4
+        config["directories"]["logs"] + "/kallisto/{sample}.log"
+    
+    threads: 
+        config["aligners"]["kallisto"]["threads"]
     shell:
         """
         kallisto quant \

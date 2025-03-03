@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bulkRNASeq"
-version = "0.1.0"
+version = "0.2.0"
 description = "A comprehensive bulk RNA-seq analysis pipeline"
 readme = "README.md"
 authors = [
@@ -12,47 +12,13 @@ authors = [
 ]
 license = {text = "MIT"}
 requires-python = ">=3.8"
+
+# Main dependencies
 dependencies = [
     "snakemake>=7.32.4",
     "pyyaml>=6.0.1",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pylint>=3.0.0",
-    "black>=23.9.1",
-]
-
-qc = [
-    "fastqc>=0.12.1",
-    "multiqc>=1.14",
-]
-
-align = [
-    "hisat2>=2.2.1",
-    "kallisto>=0.48.0",
-]
-
-counts = [
-    "subread>=2.0.1",  # for featureCounts
-]
-
-post = [
-    "pandas>=2.1.0",
-    "numpy>=1.24.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "scikit-learn>=1.3.0",
-    "biopython>=1.81",
-    "gseapy>=1.0.0",
-    "mygene>=3.2.2",
-]
-
-all = [
-    "snakemake>=7.32.4",
-    "pyyaml>=6.0.1",
-    "fastqc>=0.12.1",
+    "fastapi>=0.115.4",
+    "uvicorn>=0.31.0",
     "multiqc>=1.14",
     "hisat2>=2.2.1",
     "kallisto>=0.48.0",
@@ -65,16 +31,23 @@ all = [
     "biopython>=1.81",
     "gseapy>=1.0.0",
     "mygene>=3.2.2",
+    "pydeseq2>=0.5.0",
+    "python-multipart"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pylint>=3.0.0",
+    "black>=23.9.1",
 ]
 
 [project.scripts]
 bulkrnaseq = "bulkRNASeq.main:main"
 
-
-
 [project.urls]
-Homepage = "https://github.com/yourusername/bulkRNASeq"
-"Bug Tracker" = "https://github.com/yourusername/bulkRNASeq/issues"
+Homepage = "https://github.com/msherekar/bulkRNASeq"
+"Bug Tracker" = "https://github.com/msherekar/bulkRNASeq/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -119,7 +92,9 @@ dependencies = [
     "r-tidyverse=2.0.0",
     "pytorch=2.5.1",
     "torchvision=0.20.1",
-    "torchaudio=2.5.1"
+    "torchaudio=2.5.1",
+    "pydeseq2>=0.5.0",
+    "watchdog",
 ]
 
 [tool.conda-env.pip-dependencies]

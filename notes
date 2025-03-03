@@ -8,7 +8,21 @@ $ /Users/mukulsherekar/yes/envs/rnaseq/bin/kallisto quant -i /Users/mukulshereka
 [index] number of k-mers: 176,942,276
 [quant] running in single-end mode
 [quant] will process file 1: tests/data/raw_fastq/pranay.fq.gz
-[progress] 37M reads processed (91.3% mapped)              done
+[progress] 37M reads processed (91.3% mappe### featureCounts Column Naming
+
+**Default Behavior:**
+- featureCounts uses the full BAM file path as the count column name
+- Example: `tests/data/snakemake_results/aligned/pranay.bam`
+
+**Issues with Default:**
+1. Long, unwieldy column names
+2. Not portable across systems
+3. Hard to read in downstream analysis
+
+**Our Solution:**
+Added `--outFileNamePrefix` to featureCounts command:
+```bash
+featureCounts ... --outFileNamePrefix {sample}_d)              done
 [quant] processed 38,620,830 reads, 35,276,537 reads pseudoaligned
 [   em] quantifying the abundances ... done
 [   em] the Expectation-Maximization algorithm ran for 1,688 rounds

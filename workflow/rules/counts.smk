@@ -1,19 +1,23 @@
 rule feature_counts:
     input:
-        bam="results/aligned_reads/{sample}.bam",
-        gtf=lambda wildcards: config["genome"]["gtf_file"]
+        bam=config["directories"]["results"] + "/aligned/{sample}.bam",
+        gtf=lambda wildcards: config["genome"]["gtf"]
     output:
-        counts="results/counts/{sample}_counts.tsv",
-        summary="results/counts/{sample}_counts.tsv.summary"
+        counts=config["directories"]["results"] + "/counts/{sample}_counts.tsv",
+        summary=config["directories"]["results"] + "/counts/{sample}_counts.tsv.summary"
     log:
-        "logs/featurecounts/{sample}.log"
-    conda:
-        "../envs/counts.yaml"
-    threads: 4
+        config["directories"]["logs"] + "/featurecounts/{sample}.log"
+    params:
+        strand=config["featurecounts"]["strand"]
+   
+
+    threads: 
+        config["featurecounts"]["threads"]
     shell:
         """
         featureCounts \
             -T {threads} \
+            -s {params.strand} \
             -a {input.gtf} \
             -o {output.counts} \
             {input.bam} \
