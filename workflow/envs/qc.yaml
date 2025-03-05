@@ -1,7 +1,0 @@
-name: rnaseq_qc
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - fastqc=0.12.1
-  - multiqc=1.14

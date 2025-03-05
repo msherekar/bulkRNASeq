@@ -45,3 +45,7 @@ Strand (+ or - strand info)
 Length (numeric value representing gene length)
 The last column contains the actual counts from the BAM file (named "tests/data/results/aligned/pranay.bam")
 The issue is that our code is looking for a column named 'raw_counts', but this file doesn't have that exact column name. Instead, the counts are in the last column named "tests/data/results/aligned/pranay.bam".
+
+bulkrnaseq --mode pre_post --config config/combined_config.yaml --sample mukul --output tests/data/results/mukul_final_report.md
+
+   snakemake -p --cores 1 

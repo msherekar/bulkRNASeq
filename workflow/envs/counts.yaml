@@ -1,6 +1,0 @@
-name: rnaseq_counts
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - subread=2.0.1  # for featureCounts
