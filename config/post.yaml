@@ -1,13 +1,13 @@
 input:
-  counts_file: "tests/data/results/counts/pranay.bam_counts.tsv"
-  kallisto_abundance: "tests/data/results/kallisto/abundance.tsv"
+  counts_file: "tests/data/results/preprocessing/counts/pranay_counts.tsv"
+  kallisto_abundance: "tests/data/results/kallisto/pranay_abundance.tsv"
 
 output:
   results_dir: "tests/data/results/postprocessing"
 
 parameters:
   distribution: true
-  top_genes: 10
+  top_genes: 15
   gene_threshold: 10
   expected_library_size: 0
   go_enrichment: true

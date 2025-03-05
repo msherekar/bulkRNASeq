@@ -1,12 +1,11 @@
 # Combined configuration for preprocessing and postprocessing
 
-# Input data
+# Input data for preprocessing
 input:
   # Preprocessing inputs
   fastq_dir: "tests/data/raw_fastq"
   fastq_pattern: "*.fq.gz"
   paired_end: false
-  sample_sheet: "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/sample_sheet.csv"
   
   # Postprocessing inputs
   # Use a wildcard if your pipeline supports it, or remove if these will be computed per sample
@@ -16,7 +15,7 @@ input:
 # Output directories
 output:
   # Base output directory
-  results_dir: "tests/data/results"
+  results_dir: "tests/data/results/preprocessing"
   final_report: "tests/data/results/{sample}_final_report.md"
   
   

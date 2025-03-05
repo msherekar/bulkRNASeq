@@ -1,0 +1,57 @@
+# input data for preprocessing
+input:
+  # Preprocessing inputs in form of raw fastq files
+  fastq_dir: "tests/data/raw_fastq"
+  fastq_pattern: "*.fq.gz"
+  paired_end: false
+
+# output data for preprocessing
+output:
+  results_dir: "tests/data/results/preprocessing"
+  qc_dir: "tests/data/results/preprocessing/qc"
+  aligned_dir: "tests/data/results/preprocessing/aligned_reads"
+  counts_dir: "tests/data/results/preprocessing/counts"
+  # final_report: "tests/data/results/{sample}_final_report.md"
+
+# Reference genome information
+genome:
+  # GTF annotation file
+  gtf_file: "genome/gencode.v38.annotation.gtf"
+  # Reference genome FASTA
+  genome_fasta: "genome/GRCh38.p13.genome.fa"
+  # Transcriptome FASTA
+  transcriptome_fasta: "genome/gencode.v47.transcripts.fa.gz"
+
+# Aligner configurations
+aligners:
+  hisat2:
+    index_prefix: "genome/genome"
+  kallisto:
+    index: "genome/kallisto_index"
+    fragment_length: 200
+    fragment_sd: 20
+    bootstrap: 100
+  salmon:
+    index: "genome/salmon_index"
+    library_type: "A"
+    threads: 8
+    
+parameters:
+  step: "all"
+  threads: 8
+  memory: "8G"
+  aligner: "kallisto"  # Default aligner to use
+
+  # Quality control parameters
+  min_quality: 20
+  min_length: 36
+  # Strandedness: "yes", "no", or "reverse"
+  stranded: "reverse"
+  quality_threshold: 20
+  adapter_stringency: 0.9
+
+pipeline_steps:
+  - qc
+  - alignment
+  - quantification
+  - multiqc  # For final QC report

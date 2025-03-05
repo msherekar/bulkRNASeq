@@ -31,7 +31,6 @@ def setup_logger(prefix, output_dir):
     return logger
 
 
-
 def run_hisat2_alignment(
     input_file: str,
     output_dir: str,

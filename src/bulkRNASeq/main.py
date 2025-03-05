@@ -40,6 +40,23 @@ def parse_args():
     parser.add_argument('--output', required=True,
                         help='Path to output file')
     
+    # Add new argument for aligner choice
+    parser.add_argument('--aligner', choices=['hisat2', 'kallisto', 'salmon'],
+                        help='RNA-seq aligner to use (overrides config file setting)')
+    
+    # Add option to run multiple aligners
+    parser.add_argument('--multi-aligner', action='store_true',
+                        help='Run all aligners specified in config file')
+    
+    # Add option to skip FastQC
+    parser.add_argument('--skip-fastqc', action='store_true',
+                        help='Skip FastQC step if outputs already exist')
+    
+    # Add option to restart from a specific step
+    parser.add_argument('--restart-from', 
+                        choices=['fastqc', 'alignment', 'quantification', 'multiqc'],
+                        help='Restart the pipeline from a specific step')
+    
     return parser.parse_args()
 
 def main():
@@ -59,6 +76,30 @@ def main():
             config['sample'] = {}
         config['sample']['name'] = args.sample
         config['sample']['output_file'] = args.output
+        
+        # Handle aligner configuration
+        if not 'parameters' in config:
+            config['parameters'] = {}
+        
+        # Override aligner setting if specified
+        if args.aligner:
+            config['parameters']['aligner'] = args.aligner
+            logger.info(f"Using aligner: {args.aligner} (specified via command line)")
+        
+        # Handle multi-aligner mode
+        if args.multi_aligner:
+            config['parameters']['multi_aligner'] = True
+            logger.info(f"Multi-aligner mode enabled: Will run all available aligners")
+        
+        # Handle skip-fastqc flag
+        if args.skip_fastqc:
+            config['parameters']['skip_fastqc'] = True
+            logger.info("FastQC step will be skipped if outputs already exist")
+        
+        # Handle restart-from flag
+        if args.restart_from:
+            config['parameters']['restart_from'] = args.restart_from
+            logger.info(f"Pipeline will restart from the '{args.restart_from}' step")
         
         logger.info(f"Processing sample: {args.sample}")
         logger.info(f"Output will be written to: {args.output}")

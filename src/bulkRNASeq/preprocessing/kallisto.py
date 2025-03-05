@@ -71,3 +71,10 @@ def run_kallisto_quant(input_file, output_dir, kallisto_index, threads=8, bootst
         logger.error(e.stderr)
         print("Kallisto quantification encountered an error:", e.stderr, file=sys.stderr)
         sys.exit(e.returncode)
+
+
+if __name__ == "__main__":
+    input = "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/raw_fastq/mukul.fq.gz"
+    output = "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/aligned_reads_kallisto"
+    index = "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/genome/kallisto_index"
+    run_kallisto_quant(input, output, index)

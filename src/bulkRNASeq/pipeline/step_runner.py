@@ -24,6 +24,13 @@ def create_step_args(step: str, config: dict) -> list:
             '--input', config['input']['fastq_dir'],
             '--output', config['output']['qc_dir']
         ]
+    elif step == "fastqc":  # Add a specific step for FastQC
+        return [
+            '--step', 'fastqc',
+            '--input', config['input']['fastq_dir'],
+            '--output', config['output']['qc_dir'],
+            '--pattern', config['input'].get('fastq_pattern', '*.fq.gz')
+        ]
     elif step == "alignment":
         return [
             '--step', 'alignment',
@@ -88,7 +95,9 @@ def run_pipeline_step(
         pipeline_runner = get_pipeline_runner(pipeline_type)
         
         # Run the pipeline
-        success = pipeline_runner(config)
+        sample_name = config.get('sample', {}).get('name')
+        success = pipeline_runner(config, checkpoint_mgr, sample_name)
+
         
         if not success:
             raise RuntimeError(f"Pipeline step {step} failed")
