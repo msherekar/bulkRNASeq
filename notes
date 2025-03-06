@@ -48,9 +48,9 @@ The issue is that our code is looking for a column named 'raw_counts', but this 
 
 bulkrnaseq --mode pre_post --config config/combined_config.yaml --sample mukul --output tests/data/results/mukul_final_report.md
 
-   bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output mukul_report.md --multi-aligner
+bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output mukul_report.md --multi-aligner
 
-      bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output mukul_report.md --aligner kallisto
+bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output mukul_report.md --aligner kallisto
 
 snakemake -p --cores 1 
 
@@ -63,3 +63,6 @@ main.py (config file) -> run__preprocessing_pipeline -> workflow -> individual s
 TODO: 
 1.) salmon index file
 2.) in the end, check default parameters in config file and other locations. like now, default aligner is kallisto
+
+Ok so kallisto alignemnt worked. I have the two files - /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/aligned_reads_kallisto/mukul_kallisto/abundance.h5 and /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/aligned_reads_kallisto/mukul_kallisto/abundance.tsv
+but there was no feature counts
