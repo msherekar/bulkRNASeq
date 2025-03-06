@@ -28,8 +28,7 @@ class AlignerFactory:
             return Hisat2Aligner(config_handler, output_base_dir)
         elif aligner_name == 'kallisto':
             return KallistoAligner(config_handler, output_base_dir)
-        elif aligner_name == 'salmon':
-            return SalmonAligner(config_handler, output_base_dir)
+        
         else:
             logger.warning(f"Unsupported aligner: {aligner_name}")
             return None
@@ -55,7 +54,7 @@ class AlignerFactory:
             return available_aligners
         else:
             # Run only the single specified aligner
-            default_aligner = 'hisat2'
+            default_aligner = 'kallisto'
             selected_aligner = params.get('aligner', default_aligner)
             logger.info(f"Running single aligner: {selected_aligner}")
             return [selected_aligner] 

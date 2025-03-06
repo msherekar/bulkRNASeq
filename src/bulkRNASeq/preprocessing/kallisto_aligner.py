@@ -13,14 +13,14 @@ class KallistoAligner(AlignerBase):
     
     def run(self, input_file, run_quantification=True):
         """
-        Run Kallisto quantification
+        Run Kallisto quantification.
         
         Args:
-            input_file (str): Path to input FASTQ file
-            run_quantification (bool): Not used for Kallisto (included for API compatibility)
+            input_file (str): Path to input FASTQ file.
+            run_quantification (bool): Not used for Kallisto (included for API compatibility).
             
         Returns:
-            dict: Results of kallisto quantification
+            dict: Results of kallisto quantification with keys 'aligner' and 'result_file'.
         """
         output_dir = self.get_output_dir(input_file)
         aligner_config = self.config_handler.get_aligner_config('kallisto')
@@ -36,7 +36,7 @@ class KallistoAligner(AlignerBase):
         
         logger.info(f"Using Kallisto index: {kallisto_index}")
         
-        # Run Kallisto quantification
+        # Run Kallisto quantification and retrieve the expected output file.
         result_file = run_kallisto_quant(
             input_file,
             output_dir=str(output_dir),
@@ -45,7 +45,11 @@ class KallistoAligner(AlignerBase):
             bootstrap=aligner_config.get('bootstrap', 100)
         )
         
+        if result_file is None:
+            logger.error("Kallisto quantification did not produce an output file.")
+            return None
+        
         return {
             'aligner': 'kallisto',
             'result_file': result_file
-        } 
+        }

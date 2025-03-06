@@ -1,6 +1,6 @@
 # Combined configuration for preprocessing and postprocessing
 
-# Input data for preprocessing
+# Input data configuration
 input:
   # Preprocessing inputs
   fastq_dir: "tests/data/raw_fastq"
@@ -8,59 +8,140 @@ input:
   paired_end: false
   
   # Postprocessing inputs
-  # Use a wildcard if your pipeline supports it, or remove if these will be computed per sample
-  counts_file: "tests/data/results/counts/{sample}_counts.tsv"
-  kallisto_abundance: "tests/data/results/kallisto/{sample}_abundance.tsv"
+  counts_file: "tests/data/results/preprocessing/counts_hisat2/${sample}.bam_counts.tsv"
+  kallisto_abundance: "tests/data/results/preprocessing/${sample}_kallisto/abundance.tsv"
+  kallisto_h5: "tests/data/results/preprocessing/${sample}_kallisto/abundance.h5"
 
 # Output directories
 output:
-  # Base output directory
-  results_dir: "tests/data/results/preprocessing"
-  final_report: "tests/data/results/{sample}_final_report.md"
+  # Base output directories
+  pre_results_dir: "tests/data/results/preprocessing"
+  post_results_dir: "tests/data/results/postprocessing"
   
+  # Preprocessing specific outputs
+  qc_dir: "${pre_results_dir}/qc"
+  aligned_dir: "${pre_results_dir}/aligned_reads"
+  counts_dir: "${pre_results_dir}/counts"
   
-  # Preprocessing outputs
-  qc_dir: "tests/data/results/preprocessing/qc"
-  alignment_dir: "tests/data/results/preprocessing/aligned_reads"
-  counts_dir: "tests/data/results/preprocessing/counts"
-  
-  # Postprocessing outputs
-  postprocessing_dir: "tests/data/results/postprocessing"
+  # Postprocessing specific outputs
+  sample_dir: "${post_results_dir}/${sample}"
+  eda_dir: "${sample_dir}/exploratory"
+  differential_dir: "${sample_dir}/differential"
+  enrichment_dir: "${sample_dir}/enrichment"
+  reports_dir: "${sample_dir}/reports"
 
 # Reference genome information
 genome:
-  gtf_file: "/genome/gencode.v38.annotation.gtf"
-  genome_fasta: "/genome/GRCh38.p13.genome.fa"
-  transcriptome_fasta: "/genome/gencode.v47.transcripts.fa.gz"
+  # GTF annotation file
+  gtf_file: "genome/gencode.v38.annotation.gtf"
+  # Reference genome FASTA
+  genome_fasta: "genome/GRCh38.p13.genome.fa"
+  # Transcriptome FASTA
+  transcriptome_fasta: "genome/gencode.v47.transcripts.fa.gz"
 
 # Aligner configurations
 aligners:
   hisat2:
-    index_prefix: "/genome/genome"
+    index_prefix: "genome/genome"
   kallisto:
-    index: "/genome/kallisto_index"
+    index: "genome/kallisto_index"
     fragment_length: 200
     fragment_sd: 20
+    bootstrap: 100
+  salmon:
+    index: "genome/salmon_index"
+    library_type: "A"
+    threads: 8
+
+# Enabled analyses
+enabled_analyses:
+  # Preprocessing
+  qc: true
+  alignment: true
+  quantification: true
+  multiqc: true
+  
+  # Postprocessing
+  eda: true
+  qa: true
+  kallisto: true
+  enrichment: true
+  report: true
 
 # Analysis parameters
 parameters:
-  quality_threshold: 20
+  # General parameters
+  step: "all"
+  threads: 8
+  memory: "8G"
+  aligner: "kallisto"  # Default aligner to use
+  fail_fast: false     # Whether to stop pipeline on first analysis failure
+  
+  # Quality control parameters
+  min_quality: 20
   min_length: 36
+  stranded: "reverse"  # Strandedness: "yes", "no", or "reverse"
+  quality_threshold: 20
   adapter_stringency: 0.9
   
-  distribution: true
-  top_genes: 15
-  gene_threshold: 10
-  expected_library_size: 0
-  go_enrichment: true
-  network_analysis: true
-  top_percent: 5
-  threads: 8
+  # Exploratory data analysis
+  eda:
+    distribution: true
+    top_genes: 15
+    min_counts: 10
+    expected_library_size: 0
+  
+  # Differential expression
+  differential:
+    method: "DESeq2"  # Options: DESeq2, edgeR
+    log2fc_cutoff: 1.0
+    padj_cutoff: 0.05
+  
+  # Enrichment analysis
+  enrichment:
+    go_analysis: true
+    kegg_analysis: false
+    top_percent: 5
 
-# Visualization settings (for postprocessing)
+# Visualization parameters
 visualization:
+  # General settings
+  theme: "default"  # Options: default, colorblind, publication
+  
+  # PCA plot
   pca:
     color_by: "condition"
+    components: [1, 2]  # Which principal components to plot
+  
+  # Heatmap
+  heatmap:
+    cluster_rows: true
+    cluster_cols: true
+    show_rownames: false
+  
+  # Volcano plot
   volcano:
     log2fc_cutoff: 1.0
     padj_cutoff: 0.05
+    highlight_genes: []  # List of genes to highlight
+
+# Pipeline steps
+pipeline_steps:
+  # Preprocessing steps
+  - qc
+  - alignment
+  - quantification
+  - multiqc
+  
+  # Postprocessing steps
+  - eda
+  - differential_expression
+  - enrichment
+  - report_generation
+
+# Report configuration
+reports:
+  format: "markdown"  # Options: markdown, html, pdf
+  include_code: false
+  include_session_info: true
+  final_report: "tests/data/results/${sample}_final_report.md"

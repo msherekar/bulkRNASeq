@@ -41,7 +41,7 @@ def parse_args():
                         help='Path to output file')
     
     # Add new argument for aligner choice
-    parser.add_argument('--aligner', choices=['hisat2', 'kallisto', 'salmon'],
+    parser.add_argument('--aligner', choices=['hisat2', 'kallisto'],
                         help='RNA-seq aligner to use (overrides config file setting)')
     
     # Add option to run multiple aligners
