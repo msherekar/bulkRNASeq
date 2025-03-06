@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+import os
 
 # Import local modules
 try:
@@ -130,9 +131,34 @@ def run_preprocessing_pipeline(config, checkpoint_mgr=None, sample_name=None):
         report_manager = ReportManager(output_paths['results_dir'])
         report_manager.save_pipeline_stats(stats)
         
-        # Run MultiQC if it's in the pipeline steps
-        if "multiqc" in config.get('pipeline_steps', []):
-            report_manager.run_multiqc()
+        # Run MultiQC only if needed
+        try:
+            # Use the sample_name parameter directly
+            if sample_name:
+                logger.info(f"Using provided sample name '{sample_name}' for MultiQC report")
+            else:
+                # Fallback to extracting from input_file if sample_name not provided
+                sample_name = Path(input_file).stem.split('.')[0]
+                logger.info(f"Extracted sample name '{sample_name}' for MultiQC report")
+            
+            # Initialize the ReportManager
+            multiqc_output_dir = os.path.join(output_paths['results_dir'], "multiqc_report")
+            report_manager = ReportManager(output_dir=multiqc_output_dir)
+            
+            # Call run_multiqc with the directory and sample name
+            multiqc_report = report_manager.run_multiqc(
+                directory=output_paths['results_dir'],
+                sample_name=sample_name
+            )
+            
+            if multiqc_report:
+                logger.info(f"MultiQC report generated at {multiqc_report}")
+            else:
+                logger.warning("MultiQC report generation failed")
+        except Exception as e:
+            logger.error(f"Error running MultiQC: {str(e)}")
+            logger.warning("Continuing pipeline despite MultiQC error")
+            # Don't fail the entire pipeline for a MultiQC error
         
         logger.info("Preprocessing pipeline completed successfully")
         return True

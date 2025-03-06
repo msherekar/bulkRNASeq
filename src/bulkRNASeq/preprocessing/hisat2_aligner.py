@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+import os
 
 from .aligner_base import AlignerBase
 from .histat2 import run_hisat2_alignment
@@ -59,6 +60,12 @@ class Hisat2Aligner(AlignerBase):
             threads=self.get_threads()
         )
         
+        # Add validation check
+        if not bam_file:
+            logger.error("HISAT2 alignment failed to return a valid BAM file path")
+            return None
+        
+        # Continue only if bam_file is valid
         results = {
             'aligner': 'hisat2',
             'bam_file': bam_file
@@ -69,17 +76,35 @@ class Hisat2Aligner(AlignerBase):
             counts_dir = self.output_base_dir / f'counts_hisat2'
             counts_dir.mkdir(parents=True, exist_ok=True)
             
-            base_name = Path(input_file).stem.replace('.fq', '').replace('.fastq', '')
-            
-            run_featurecounts(
-                bam_file,
-                output_dir=str(counts_dir),
-                annotation_file=str(self.genome_paths['gtf_file']),
-                threads=self.get_threads()
-            )
-            
-            # Add counts file to results
-            counts_file = str(counts_dir / f"{base_name}_counts.tsv")
-            results['counts_file'] = counts_file
-            
+            try:
+                if not os.path.exists(bam_file):
+                    logger.error(f"BAM file does not exist: {bam_file}")
+                    return results  # Return without counts_file in results
+                
+                logger.info(f"Running featureCounts on BAM file: {bam_file}")
+                logger.info(f"Using annotation file: {self.genome_paths['gtf_file']}")
+                logger.info(f"Output directory: {counts_dir}")
+                
+                # Ensure correct parameter names based on featurecounts.py implementation
+                run_featurecounts(
+                    bam_file=bam_file,  # Use explicit named parameter
+                    output_dir=str(counts_dir),
+                    annotation_file=str(self.genome_paths['gtf_file']),
+                    threads=self.get_threads()
+                )
+                
+                # Verify the output file was created
+                base_name = Path(input_file).stem.replace('.fq', '').replace('.fastq', '')
+                counts_file = str(counts_dir / f"{base_name}_counts.tsv")
+                
+                if not os.path.exists(counts_file):
+                    logger.warning(f"Expected counts file not found: {counts_file}")
+                else:
+                    logger.info(f"Counts file generated: {counts_file}")
+                    results['counts_file'] = counts_file
+                
+            except Exception as e:
+                logger.error(f"Error in featureCounts: {str(e)}")
+                # Continue gracefully - don't add counts_file to results
+        
         return results 

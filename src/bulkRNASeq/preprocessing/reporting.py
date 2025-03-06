@@ -4,6 +4,7 @@ import os
 import json
 import logging
 from pathlib import Path
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -31,21 +32,35 @@ class ReportManager:
         
         logger.info(f"Pipeline statistics saved to {stats_file}")
     
-    def run_multiqc(self, include_subfolders=True):
+    def run_multiqc(self, directory, output_dir=None, sample_name=None):
         """
-        Run MultiQC to generate comprehensive report
+        Run MultiQC on the specified directory.
         
         Args:
-            include_subfolders (bool): Whether to include subfolders in MultiQC analysis
+            directory (str): Directory containing reports to analyze
+            output_dir (str, optional): Output directory for the report
+            sample_name (str, optional): Sample name to use as prefix
         """
-        multiqc_output_dir = self.output_dir / "multiqc_report"
-        multiqc_output_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Running MultiQC on {directory}")
         
-        # Construct multiqc command
-        search_dir = str(self.output_dir)
-        multiqc_cmd = f"multiqc {search_dir} -o {multiqc_output_dir}"
+        if output_dir is None:
+            output_dir = os.path.join(directory, "multiqc_report")
         
-        logger.info(f"Running MultiQC on {search_dir}")
-        os.system(multiqc_cmd)  # Execute MultiQC command
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
         
-        logger.info(f"MultiQC report generated at {multiqc_output_dir}") 
+        # Build MultiQC command with sample name prefix if provided
+        multiqc_cmd = ["multiqc", directory, "-o", output_dir]
+        
+        if sample_name:
+            # Use sample name as prefix for the report
+            multiqc_cmd.extend(["--filename", f"{sample_name}_multiqc_report"])
+            logger.info(f"Using sample name '{sample_name}' as MultiQC report prefix")
+        
+        try:
+            subprocess.run(multiqc_cmd, check=True)
+            logger.info(f"MultiQC report generated at {output_dir}")
+            return os.path.join(output_dir, f"{'multiqc_report.html' if not sample_name else f'{sample_name}_report.html'}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error running MultiQC: {e}")
+            return None 

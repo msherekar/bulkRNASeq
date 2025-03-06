@@ -135,7 +135,22 @@ def main():
         # Generate the final report
         if success:
             logger.info("Generating final report")
-            generate_final_report(config, args.output)
+            # Check and fix the output report path handling:
+
+            # Add validation for the output path
+            output_path = args.output
+            if not output_path:
+                output_path = f"{args.sample}_report.md"
+                logger.warning(f"No output path specified, using default: {output_path}")
+
+            # Make sure the path is absolute (if not, resolve it based on current working directory)
+            if not os.path.isabs(output_path):
+                output_path = os.path.join(os.getcwd(), output_path)
+
+            logger.info(f"Final report will be written to: {output_path}")
+
+            # Pass the validated path to the report generation function
+            generate_final_report(config, output_path)
             logger.info(f"{args.mode.capitalize()} pipeline completed successfully")
             sys.exit(0)
         else:
@@ -152,9 +167,9 @@ def generate_final_report(config, output_file):
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Just before generating the report
-    print(f"About to generate report at: {args.output}")
+    print(f"About to generate report at: {output_file}")
     print(f"Current directory: {os.getcwd()}")
-    print(f"Output directory exists: {os.path.exists(os.path.dirname(args.output))}")
+    print(f"Output directory exists: {os.path.exists(os.path.dirname(output_file))}")
     
     # Write a simple report
     with open(output_file, 'w') as f:

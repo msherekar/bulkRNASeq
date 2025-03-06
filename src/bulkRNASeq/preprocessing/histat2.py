@@ -37,7 +37,7 @@ def run_hisat2_alignment(
     hisat2_index: str,
     threads: int = 4,
     logger: logging.Logger = None
-) -> None:
+) -> str:
     """
     Run HISAT2 alignment on input FASTQ file.
     
@@ -102,6 +102,9 @@ def run_hisat2_alignment(
             logger.info(f"Output BAM: {bam_file}")
             logger.info(f"Log file: {log_file}")
         
+        # Make sure to return the BAM file path
+        return str(bam_file)  # Convert to string explicitly
+        
     except subprocess.CalledProcessError as e:
         error_msg = f"HISAT2 alignment failed: {e.stderr}"
         if logger:
@@ -109,7 +112,8 @@ def run_hisat2_alignment(
         raise RuntimeError(error_msg)
         
     except Exception as e:
+        # Log error but don't return None
         error_msg = f"Error during alignment: {str(e)}"
         if logger:
             logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        raise RuntimeError(error_msg)  # Raise exception rather than returning None
