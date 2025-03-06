@@ -1,23 +1,78 @@
+# Input configuration - supports both HISAT2 and Kallisto workflows
 input:
-  counts_file: "tests/data/results/preprocessing/counts/pranay_counts.tsv"
-  kallisto_abundance: "tests/data/results/kallisto/pranay_abundance.tsv"
+  # HISAT2 output (featureCounts)
+  counts_file: "tests/data/results/preprocessing/counts_hisat2/${sample}.bam_counts.tsv"
+  
+  # Kallisto output
+  kallisto_abundance: "tests/data/results/preprocessing/${sample}_kallisto/abundance.tsv"
+  kallisto_h5: "tests/data/results/preprocessing/${sample}_kallisto/abundance.h5"
 
+# Output directories - organized by analysis type
 output:
-  results_dir: "tests/data/results/postprocessing"
+  base_dir: "tests/data/results/postprocessing"
+  sample_dir: "${base_dir}/${sample}"
+  eda_dir: "${sample_dir}/exploratory"
+  differential_dir: "${sample_dir}/differential"
+  enrichment_dir: "${sample_dir}/enrichment"
+  reports_dir: "${sample_dir}/reports"
 
+# Enabled analyses - control which steps run
+enabled_analyses:
+  eda: true
+  qa: true 
+  kallisto: true
+  enrichment: true
+  report: true
+
+# Analysis parameters
 parameters:
-  distribution: true
-  top_genes: 15
-  gene_threshold: 10
-  expected_library_size: 0
-  go_enrichment: true
-  network_analysis: true
-  top_percent: 5
+  # Exploratory data analysis
+  eda:
+    distribution: true
+    top_genes: 15
+    min_counts: 10
+    expected_library_size: 0
+  
+  # Differential expression
+  differential:
+    method: "DESeq2"  # Options: DESeq2, edgeR
+    log2fc_cutoff: 1.0
+    padj_cutoff: 0.05
+    
+  # Enrichment analysis
+  enrichment:
+    go_analysis: true
+    kegg_analysis: false
+    top_percent: 5
+    
+  # Performance
   threads: 8
+  fail_fast: false  # Whether to stop pipeline on first analysis failure
 
+# Visualization parameters
 visualization:
+  # General settings
+  theme: "default"  # Options: default, colorblind, publication
+  
+  # PCA plot
   pca:
     color_by: "condition"
+    components: [1, 2]  # Which principal components to plot
+    
+  # Heatmap
+  heatmap:
+    cluster_rows: true
+    cluster_cols: true
+    show_rownames: false
+    
+  # Volcano plot
   volcano:
     log2fc_cutoff: 1.0
     padj_cutoff: 0.05
+    highlight_genes: []  # List of genes to highlight
+
+# Report configuration
+reports:
+  format: "markdown"  # Options: markdown, html, pdf
+  include_code: false
+  include_session_info: true

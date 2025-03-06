@@ -52,6 +52,7 @@ bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output
 
 bulkrnaseq --mode preprocessing --config config/pre.yaml --sample mukul --output mukul_report.md --aligner kallisto
 
+bulkrnaseq --mode postprocessing --config config/post.yaml --log-level DEBUG --sample mukul --output mukul_report.md
 snakemake -p --cores 1 
 
 # why sample_sheet.csv is needed.
@@ -66,3 +67,175 @@ TODO:
 
 Ok so kallisto alignemnt worked. I have the two files - /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/aligned_reads_kallisto/mukul_kallisto/abundance.h5 and /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/aligned_reads_kallisto/mukul_kallisto/abundance.tsv
 but there was no feature counts
+
+def run_postprocessing_pipeline(config, checkpoint_mgr=None):
+    """
+    Main function to run the RNA-seq postprocessing pipeline.
+    
+    Args:
+        config (dict): Configuration dictionary
+        checkpoint_mgr: Checkpoint manager
+        
+    Returns:
+        bool: Success status
+    """
+    # Track overall success
+    success = True
+    
+    # Store results from successful analyses
+    results = {}
+    
+    try:
+        # Extract configuration
+        input_counts_file = config['input']['counts_file']
+        output_dir = Path(config['output'].get('base_dir', 'results/postprocessing'))
+        params = config.get('parameters', {})
+        enabled = config.get('enabled_analyses', {})
+        fail_fast = params.get('fail_fast', False)
+        
+        # Create output directory
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize results dictionary
+        results['input_file'] = input_counts_file
+        
+        # Verify input file exists
+        if not os.path.exists(input_counts_file):
+            # Try alternative naming pattern
+            base_name = Path(input_counts_file).stem.replace('_counts', '').replace('.bam_counts', '')
+            alt_counts_file = Path(input_counts_file).parent / f"{base_name}_counts.tsv"
+            
+            if os.path.exists(alt_counts_file):
+                input_counts_file = str(alt_counts_file)
+                logger.info(f"Using alternative counts file: {input_counts_file}")
+                results['input_file'] = input_counts_file
+            else:
+                logger.error(f"Input counts file not found: {input_counts_file} or {alt_counts_file}")
+                return False
+        
+        # Load count data for analysis
+        try:
+            df = pd.read_csv(input_counts_file, sep='\t', comment='#')
+            sample_col = df.columns[-1]
+            df['raw_counts'] = df[sample_col].copy()
+        except Exception as e:
+            logger.error(f"Failed to load counts data: {str(e)}")
+            if fail_fast:
+                return False
+            success = False
+            # Create an empty DataFrame to pass to other analyses
+            df = pd.DataFrame()
+        
+        # ===== Step 1: Exploratory Data Analysis =====
+        if enabled.get('eda', True) and (not checkpoint_mgr or not checkpoint_mgr.should_skip_step('eda')):
+            try:
+                logger.info("Running exploratory data analysis...")
+                eda_analyzer = EDAAnalyzer(output_dir)
+                results['eda'] = eda_analyzer.run_analysis(input_counts_file, params.get('eda', {}))
+                
+                if checkpoint_mgr:
+                    checkpoint_mgr.save_checkpoint('eda', 'completed')
+                logger.info("Exploratory data analysis completed successfully")
+            except Exception as e:
+                logger.error(f"Error in exploratory data analysis: {str(e)}")
+                import traceback
+                logger.error(traceback.format_exc())
+                if fail_fast:
+                    return False
+                success = False
+        
+        # ===== Step 2: Quality Assessment =====
+        if enabled.get('qa', True) and (not checkpoint_mgr or not checkpoint_mgr.should_skip_step('qa')):
+            try:
+                logger.info("Running quality assessment...")
+                qa_analyzer = QAAnalyzer(output_dir)
+                results['qa'] = qa_analyzer.run_analysis(df, params.get('qa', {}))
+                
+                if checkpoint_mgr:
+                    checkpoint_mgr.save_checkpoint('qa', 'completed')
+                logger.info("Quality assessment completed successfully")
+            except Exception as e:
+                logger.error(f"Error in quality assessment: {str(e)}")
+                import traceback
+                logger.error(traceback.format_exc())
+                if fail_fast:
+                    return False
+                success = False
+        
+        # ===== Step 3: Kallisto Analysis (if specified) =====
+        kallisto_abundance_file = config['input'].get('kallisto_abundance', None)
+        if enabled.get('kallisto', True) and kallisto_abundance_file and \
+           (not checkpoint_mgr or not checkpoint_mgr.should_skip_step('kallisto')):
+            try:
+                logger.info("Running Kallisto analysis...")
+                if os.path.exists(kallisto_abundance_file):
+                    kallisto_analyzer = KallistoAnalyzer(output_dir)
+                    results['kallisto'] = kallisto_analyzer.run_analysis(
+                        kallisto_abundance_file, 
+                        params.get('kallisto', {})
+                    )
+                    results['kallisto']['input_file'] = kallisto_abundance_file
+                    
+                    if checkpoint_mgr:
+                        checkpoint_mgr.save_checkpoint('kallisto', 'completed')
+                    logger.info("Kallisto analysis completed successfully")
+                else:
+                    logger.warning(f"Kallisto abundance file not found: {kallisto_abundance_file}")
+                    if fail_fast:
+                        return False
+                    success = False
+            except Exception as e:
+                logger.error(f"Error in Kallisto analysis: {str(e)}")
+                import traceback
+                logger.error(traceback.format_exc())
+                if fail_fast:
+                    return False
+                success = False
+        
+        # ===== Step 4: Enrichment Analysis =====
+        if enabled.get('enrichment', True) and \
+           (params.get('enrichment', {}).get('go_analysis', False) or 
+            params.get('enrichment', {}).get('kegg_analysis', False)) and \
+           (not checkpoint_mgr or not checkpoint_mgr.should_skip_step('enrichment')):
+            try:
+                logger.info("Running enrichment analysis...")
+                enrichment_analyzer = EnrichmentAnalyzer(output_dir)
+                results['enrichment'] = enrichment_analyzer.run_analysis(df, params.get('enrichment', {}))
+                
+                if checkpoint_mgr:
+                    checkpoint_mgr.save_checkpoint('enrichment', 'completed')
+                logger.info("Enrichment analysis completed successfully")
+            except Exception as e:
+                logger.error(f"Error in enrichment analysis: {str(e)}")
+                import traceback
+                logger.error(traceback.format_exc())
+                if fail_fast:
+                    return False
+                success = False
+        
+        # ===== Step 5: Generate Final Report =====
+        if enabled.get('report', True):
+            try:
+                logger.info("Generating final report...")
+                markdown_reporter = MarkdownReporter(output_dir)
+                final_report = markdown_reporter.generate_report(results, df)
+                results['final_report'] = final_report
+                logger.info(f"Final report generated: {final_report}")
+            except Exception as e:
+                logger.error(f"Error generating final report: {str(e)}")
+                import traceback
+                logger.error(traceback.format_exc())
+                if fail_fast:
+                    return False
+                success = False
+        
+        logger.info("Postprocessing pipeline finished with " + 
+                  ("success" if success else "some errors"))
+        return success
+        
+    except Exception as e:
+        logger.error(f"Error in postprocessing pipeline: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return False
+

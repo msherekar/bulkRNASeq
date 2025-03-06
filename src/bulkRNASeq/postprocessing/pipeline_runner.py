@@ -4,6 +4,7 @@ import os
 import logging
 import pandas as pd
 from pathlib import Path
+import copy
 
 # Import analysis modules
 from .analyzers.eda_analyzer import EDAAnalyzer
@@ -14,21 +15,34 @@ from .reporters.markdown_reporter import MarkdownReporter
 
 logger = logging.getLogger(__name__)
 
-def run_postprocessing_pipeline(config, checkpoint_mgr=None):
+def run_postprocessing_pipeline(config, checkpoint_mgr=None, sample_name=None):
     """
     Main function to run the RNA-seq postprocessing pipeline.
     
     Args:
         config (dict): Configuration dictionary
         checkpoint_mgr: Checkpoint manager
+        sample_name: Sample name to use for path substitution
         
     Returns:
         bool: Success status
     """
     try:
+        # Perform sample_name substitution in paths if provided
+        if sample_name:
+            # Make a deep copy of config to avoid modifying the original
+            config = copy.deepcopy(config)
+            
+            # Replace ${sample} in all string values
+            for section in config:
+                if isinstance(config[section], dict):
+                    for key, value in config[section].items():
+                        if isinstance(value, str) and "${sample}" in value:
+                            config[section][key] = value.replace("${sample}", sample_name)
+        
         # Extract configuration
         input_counts_file = config['input']['counts_file']
-        output_dir = Path(config['output'].get('results_dir', 'results/postprocessing'))
+        output_dir = Path(config['output'].get('base_dir', 'results/postprocessing'))
         params = config.get('parameters', {})
         
         # Create output directory

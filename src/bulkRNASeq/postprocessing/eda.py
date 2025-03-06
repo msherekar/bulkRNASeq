@@ -116,3 +116,12 @@ def plot_top_genes(df, n=10, output_folder='.'):
     except Exception as e:
         logger.error(f"Error in plot_top_genes: {str(e)}")
         raise 
+
+
+if __name__ == "__main__":
+    # Test all the functions:
+    df = load_feature_counts("/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/counts_hisat2/mukul.bam_counts.tsv")
+    plot_expression_distribution(df, "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/postprocessing/eda")
+    plot_top_genes(df, 10, "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/postprocessing/eda")
+    get_top_genes(df, 10)
+    

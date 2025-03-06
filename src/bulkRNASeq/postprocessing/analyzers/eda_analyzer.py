@@ -161,3 +161,18 @@ class EDAAnalyzer:
         # Save figure
         plt.savefig(output_file)
         plt.close() 
+
+
+if __name__ == "__main__":
+    # Test the EDAAnalyzer
+    output_dir = "tests/data/results/postprocessing/eda"
+    #counts_file = "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/mukul_kallisto/abundance.tsv"
+    counts_file = "/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/counts_hisat2/mukul.bam_counts.tsv"
+    analyzer = EDAAnalyzer(output_dir)
+    analyzer.run_analysis(counts_file)
+    analyzer._load_counts(counts_file)
+    
+    analyzer._plot_distribution(counts_file, output_dir)
+    analyzer._get_top_genes(counts_file, 10)
+    analyzer._plot_top_genes(counts_file, 10, output_dir)
+    analyzer._generate_summary_file(counts_file, output_dir)

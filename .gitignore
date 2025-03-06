@@ -104,6 +104,7 @@ dl_notes.md
 notes.txt
 notes.md
 /Users/mukulsherekar/pythonProject/bulkRNASeq-Project/notes
+*.md
 
 # Snakemake
 .snakemake/

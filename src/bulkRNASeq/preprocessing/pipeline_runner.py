@@ -166,4 +166,3 @@ def run_preprocessing_pipeline(config, checkpoint_mgr=None, sample_name=None):
     except Exception as e:
         logger.error(f"Error in preprocessing pipeline: {str(e)}")
         return False
-

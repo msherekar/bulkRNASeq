@@ -138,3 +138,10 @@ class KallistoAnalyzer:
         except Exception as e:
             logger.error(f"Error in abundance distributions: {str(e)}")
             return {'error': str(e)} 
+        
+
+if __name__ == "__main__":
+    # Test the KallistoAnalyzer
+    analyzer = KallistoAnalyzer(output_dir="tests/data/results/postprocessing/kallisto_analysis")
+    analyzer.run_analysis(kallisto_file="/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/mukul_kallisto/abundance.tsv")
+   

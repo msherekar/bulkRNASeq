@@ -1,52 +1,63 @@
 # Analysis Report for mukul
 
-Analysis completed at: 2025-03-06 00:21:39
+Analysis completed at: 2025-03-06 17:55:31
 
 ## Configuration
 
 ```yaml
-aligners:
-  hisat2:
-    index_prefix: genome/genome
-  kallisto:
-    bootstrap: 100
-    fragment_length: 200
-    fragment_sd: 20
-    index: genome/kallisto_index
-  salmon:
-    index: genome/salmon_index
-    library_type: A
-    threads: 8
-genome:
-  genome_fasta: genome/GRCh38.p13.genome.fa
-  gtf_file: genome/gencode.v38.annotation.gtf
-  transcriptome_fasta: genome/gencode.v47.transcripts.fa.gz
+enabled_analyses:
+  eda: true
+  enrichment: true
+  kallisto: true
+  qa: true
+  report: true
 input:
-  fastq_dir: tests/data/raw_fastq
-  fastq_pattern: '*.fq.gz'
-  paired_end: false
+  counts_file: tests/data/results/preprocessing/counts_hisat2/${sample}.bam_counts.tsv
+  kallisto_abundance: tests/data/results/preprocessing/${sample}_kallisto/abundance.tsv
+  kallisto_h5: tests/data/results/preprocessing/${sample}_kallisto/abundance.h5
 output:
-  aligned_dir: tests/data/results/preprocessing/aligned_reads
-  counts_dir: tests/data/results/preprocessing/counts
-  qc_dir: tests/data/results/preprocessing/qc
-  results_dir: tests/data/results/preprocessing
+  base_dir: tests/data/results/postprocessing
+  differential_dir: ${sample_dir}/differential
+  eda_dir: ${sample_dir}/exploratory
+  enrichment_dir: ${sample_dir}/enrichment
+  reports_dir: ${sample_dir}/reports
+  sample_dir: ${base_dir}/${sample}
 parameters:
-  adapter_stringency: 0.9
-  aligner: hisat2
-  memory: 8G
-  min_length: 36
-  min_quality: 20
-  quality_threshold: 20
-  restart_from: quantification
-  step: all
-  stranded: reverse
+  differential:
+    log2fc_cutoff: 1.0
+    method: DESeq2
+    padj_cutoff: 0.05
+  eda:
+    distribution: true
+    expected_library_size: 0
+    min_counts: 10
+    top_genes: 15
+  enrichment:
+    go_analysis: true
+    kegg_analysis: false
+    top_percent: 5
+  fail_fast: false
   threads: 8
-pipeline_steps:
-- qc
-- alignment
-- quantification
-- multiqc
+reports:
+  format: markdown
+  include_code: false
+  include_session_info: true
 sample:
   name: mukul
   output_file: mukul_report.md
+visualization:
+  heatmap:
+    cluster_cols: true
+    cluster_rows: true
+    show_rownames: false
+  pca:
+    color_by: condition
+    components:
+    - 1
+    - 2
+  theme: default
+  volcano:
+    highlight_genes: []
+    log2fc_cutoff: 1.0
+    padj_cutoff: 0.05
 ```
