@@ -31,8 +31,12 @@ def run_featurecounts(bam_file, output_dir, annotation_file, threads=8):
     """
     Runs featureCounts to quantify gene expression from a sorted BAM file.
     """
-    # Expect the input bam_file to be something like: pranay_hisat2_sorted.bam
-    prefix = os.path.basename(bam_file).replace("_hisat2_sorted.bam", "")
+    # Current line:
+    # prefix = os.path.basename(bam_file).replace("_hisat2_sorted.bam", "")
+    
+    # Change to this - extract the sample name without bam extension:
+    prefix = os.path.basename(bam_file).split('.')[0]
+    # This will turn "tommy.bam" into "tommy"
     
     logger = setup_logger(prefix, output_dir)
     
@@ -58,6 +62,20 @@ def run_featurecounts(bam_file, output_dir, annotation_file, threads=8):
         logger.info("featureCounts output:\n" + result.stdout)
         print(success_msg)
         print("Output counts file:", output_counts)
+
+        # Check for additional output files that might be useful in downstream analysis
+        output_files = {
+            'abundance': output_counts,
+            'run_info': os.path.join(os.path.dirname(output_counts), "run_info.json"),
+            'h5': os.path.join(os.path.dirname(output_counts), "abundance.h5")
+        }
+
+        # Verify that these files exist
+        missing_files = [f_type for f_type, path in output_files.items() 
+                         if not os.path.exists(path)]
+
+        if missing_files:
+            logger.warning(f"Some expected featureCounts output files are missing: {', '.join(missing_files)}")
     except subprocess.CalledProcessError as e:
         error_msg = "featureCounts encountered an error:"
         logger.error(error_msg)

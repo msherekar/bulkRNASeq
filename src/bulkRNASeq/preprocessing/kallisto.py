@@ -29,7 +29,7 @@ def setup_logger(prefix, output_dir):
 
     return logger
 
-def run_kallisto_quant(input_file, output_dir, kallisto_index, threads=8, bootstrap=100, timeout_seconds=600):
+def run_kallisto_quant(input_file, output_dir, kallisto_index, threads=8, bootstrap=100, timeout_seconds=3600):
     """
     Runs Kallisto quantification on the given input FASTQ file using a pre-built Kallisto index.
     
@@ -73,17 +73,28 @@ def run_kallisto_quant(input_file, output_dir, kallisto_index, threads=8, bootst
     except subprocess.TimeoutExpired as e:
         logger.error(f"Kallisto quantification timed out after {timeout_seconds} seconds.")
         print(f"Kallisto quantification timed out after {timeout_seconds} seconds.", file=sys.stderr)
-        sys.exit(1)
+        return None
     except subprocess.CalledProcessError as e:
-        logger.error("Kallisto quantification encountered an error:")
         logger.error(e.stderr)
         print("Kallisto quantification encountered an error:", e.stderr, file=sys.stderr)
-        sys.exit(e.returncode)
+        # Don't exit the entire process, just return None to indicate failure
+        return None
     
     # Assuming that kallisto creates an "abundance.tsv" file as its primary output.
     abundance_file = os.path.join(kallisto_out, "abundance.tsv")
     if not os.path.exists(abundance_file):
         logger.warning(f"Expected output file {abundance_file} not found.")
+        return None
+    
+    # Check if the abundance file has content and is not corrupted
+    try:
+        with open(abundance_file, 'r') as f:
+            first_line = f.readline().strip()
+            if not first_line or not first_line.startswith("target_id"):
+                logger.warning(f"Output file {abundance_file} appears to be invalid.")
+                return None
+    except Exception as e:
+        logger.error(f"Error validating output file: {str(e)}")
         return None
 
     return abundance_file

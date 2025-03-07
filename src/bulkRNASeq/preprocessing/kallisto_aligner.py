@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+import os
 
 from .aligner_base import AlignerBase
 from .kallisto import run_kallisto_quant
@@ -49,7 +50,22 @@ class KallistoAligner(AlignerBase):
             logger.error("Kallisto quantification did not produce an output file.")
             return None
         
+        # Check for additional output files that might be useful in downstream analysis
+        output_files = {
+            'abundance': result_file,
+            'run_info': os.path.join(os.path.dirname(result_file), "run_info.json"),
+            'h5': os.path.join(os.path.dirname(result_file), "abundance.h5")
+        }
+        
+        # Verify that these files exist
+        missing_files = [f_type for f_type, path in output_files.items() 
+                         if not os.path.exists(path)]
+        
+        if missing_files:
+            logger.warning(f"Some expected Kallisto output files are missing: {', '.join(missing_files)}")
+        
         return {
             'aligner': 'kallisto',
-            'result_file': result_file
+            'result_file': result_file,
+            'all_output_files': {k: v for k, v in output_files.items() if os.path.exists(v)}
         }
