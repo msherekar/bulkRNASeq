@@ -2,14 +2,13 @@
 
 # Input data configuration
 input:
-  fastq_dir: "tests/data/raw_fastq"
+  fastq_dir: "data"
   fastq_pattern: "*.fq.gz"
   paired_end: false
-  counts_file: "tests/data/results/preprocessing/counts_hisat2/${sample}.bam_counts.tsv"
-  kallisto_abundance: "tests/data/results/preprocessing/${sample}_kallisto/abundance.tsv"
-  kallisto_h5: "tests/data/results/preprocessing/${sample}_kallisto/abundance.h5"
+  counts_file: "results/preprocessing/counts_hisat2/{sample}_counts.tsv"
+  kallisto_abundance: "results/preprocessing/{sample}_kallisto/abundance.tsv"
+  kallisto_h5: "results/preprocessing/{sample}_kallisto/abundance.h5"
 
-# Output directories
 # Output directories
 output:
   # Base output directories
@@ -17,21 +16,23 @@ output:
   post_results_dir: "tests/data/results/postprocessing"
   
   # Preprocessing specific outputs
-  qc_dir: "tests/data/results/preprocessing/qc"
-  aligned_dir: "tests/data/results/preprocessing/aligned_reads"
-  counts_dir: "tests/data/results/preprocessing/counts"
+  qc_dir: "results/preprocessing/qc"
+  aligned_dir: "results/preprocessing/aligned_reads"
+  counts_dir: "results/preprocessing/counts"
   
   # Postprocessing specific outputs (using wildcards if needed)
-  sample_dir: "tests/data/results/postprocessing/{sample}"
-  eda_dir: "tests/data/results/postprocessing/{sample}/exploratory"
-  differential_dir: "tests/data/results/postprocessing/{sample}/differential"
-  enrichment_dir: "tests/data/results/postprocessing/{sample}/enrichment"
-  reports_dir: "tests/data/results/postprocessing/{sample}/reports"
-  
+  sample_dir: "results/postprocessing/{sample}"
+  eda_dir: "results/postprocessing/exploratory"
+  differential_dir: "results/postprocessing/differential"
+  enrichment_dir: "results/postprocessing/enrichment"
+  reports_dir: "results/postprocessing/reports"
+
   # Legacy directories (for backward compatibility)
   raw_data: "tests/data/raw_fastq"
   results: "tests/data/snakemake_results"
   logs: "logs"
+  
+  
 
 # Reference genome information
 genome:
@@ -102,7 +103,7 @@ parameters:
   step: "all"
   threads: 8
   memory: "8G"
-  aligner: "kallisto"  # Default aligner to use
+  aligner: "hisat2"  # Default aligner to use
   fail_fast: false     # Whether to stop pipeline on first analysis failure
   stranded: "reverse"  # Strandedness: "yes", "no", or "reverse"
   adapter_stringency: 0.9
@@ -141,6 +142,4 @@ reports:
   format: "markdown"  # Options: markdown, html, pdf
   include_code: false
   include_session_info: true
-  final_report: "tests/data/results/{sample}_final_report.html"
-
-
+  final_report: "results/postprocessing/{sample}/{sample}_final_report.html"

@@ -30,7 +30,7 @@ rule run_bulkRNASeq:
     output:
         report = config["reports"]["final_report"]
     params:
-        mode = "pre_post",
+        mode = "postprocessing",
         config_file = "config/snakemake_config.yaml",
         results_dir = config["output"]["pre_results_dir"],
         post_results_dir = config["output"]["post_results_dir"]

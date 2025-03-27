@@ -2,12 +2,10 @@ import argparse
 import subprocess
 import sys
 import logging
-import json
 import os
-import zipfile
 from pathlib import Path
-# TODO: file path and name for pranay_qc like why two folders
-
+import time
+# Configure basic logging (this only sets a base format, individual loggers may override)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s: %(message)s',
@@ -41,21 +39,32 @@ def setup_logger(prefix, output_dir):
     
     return logger
 
-def run_fastqc(input_path: str, output_dir: str) -> None:
+def run_fastqc(input_dir: str, output_dir: str) -> None:
     """
-    Run FastQC on input FASTQ file.
+    Scan the input directory for FASTQ files (*.fastq.gz) and run FastQC on them.
     
     Args:
-        input_path: Path to FASTQ file
-        output_dir: Directory for FastQC output
+        input_dir: Directory containing FASTQ files.
+        output_dir: Directory for FastQC output.
     """
     try:
         # Ensure output directory exists
         os.makedirs(output_dir, exist_ok=True)
         
-        # Construct and run FastQC command
-        cmd = f"fastqc {input_path} -o {output_dir}"
-        logging.info(f"Running FastQC with command: {cmd}")
+        input_dir_path = Path(input_dir)
+
+        # Scan for FASTQ files
+        fastq_files = list(input_dir_path.glob("*.fastq.gz"))
+        print(len(fastq_files), "files found")
+        if not fastq_files:
+            logging.warning(f"No FASTQ files found in {input_dir}")
+            return
+        
+        # Convert list of paths to space-separated string
+        fastq_files_str = " ".join(str(f) for f in fastq_files)
+        
+        cmd = f"fastqc --threads 8 {fastq_files_str} -o {output_dir}"
+        print("Running command:", cmd)  # Debugging
         
         result = subprocess.run(
             cmd,
@@ -64,6 +73,7 @@ def run_fastqc(input_path: str, output_dir: str) -> None:
             text=True
         )
         
+        # Handle command output
         if result.returncode != 0:
             logging.error("FastQC encountered an error:")
             logging.error(result.stderr)
@@ -76,3 +86,22 @@ def run_fastqc(input_path: str, output_dir: str) -> None:
     except Exception as e:
         logging.error(f"Error running FastQC: {str(e)}")
         raise
+
+
+if __name__ == "__main__":
+    # count time taken to run the script
+    start_time = time.time()
+    parser = argparse.ArgumentParser(description="FastQC pipeline")
+    parser.add_argument("--input_dir", required=True, help="Directory containing FASTQ files")
+    parser.add_argument("--output_dir", required=True, help="Directory for FastQC output")
+    args = parser.parse_args()
+    
+    # Set up the logger (logs will be written to the output directory)
+    logger = setup_logger("fastqc_pipeline", args.output_dir)
+    
+    # Run FastQC on the entire folder of FASTQ files
+    run_fastqc(args.input_dir, args.output_dir)
+    end_time = time.time()
+    print(f"Time taken to run the script: {end_time - start_time} seconds")
+
+#TODO: change output directory such that each fastqc file goes to its respective sample folder

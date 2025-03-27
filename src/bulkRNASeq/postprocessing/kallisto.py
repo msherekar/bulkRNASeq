@@ -82,8 +82,7 @@ def plot_abundance_distribution(expression_df, sample, output_file):
 def main():
     # Load kallisto abundance data.
     # Assumes file "kallisto_abundance.tsv" with columns: transcript_id, gene_id, sample1, sample2, ...
-    data = pd.read_csv("/Users/mukulsherekar/pythonProject/bulkRNASeq-Project/tests/data/results/preprocessing/mukul_kallisto/abundance.tsv", sep="\t")
-    
+    data = pd.read_csv("/Users/mukulsherekar/pythonProject/DEGCNN/kallisto_files/fastq_files_kallisto/abundance.tsv")
     # Assume the first two columns are metadata; the rest are sample TPM values.
     sample_cols = data.columns[2:]
     expression_data = data[sample_cols]

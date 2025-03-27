@@ -1,18 +1,18 @@
 # input data for preprocessing
 input:
   # Preprocessing inputs in form of raw fastq files
-  fastq_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/fastq_files"
+  fastq_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/fastq_files/PRJNA413568"
   fastq_pattern: "*.fastq.gz"
   paired_end: true
 
 # output data for preprocessing
 output:
   
-  qc_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/qc_files"
-  qc_trimmed_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/trimmed_files"
-  trimmed_fastq_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/trimmed_fastq_files"
-  aligned_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/aligned_files"
-  counts_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/counts_files"
+  qc_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/qc_files/PRJNA413568"
+  qc_trimmed_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/qc_files/PRJNA413568_Trim"
+  trimmed_fastq_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/fastq_trim/PRJNA413568"
+  aligned_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/hisat_files/PRJNA413568"
+  counts_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/counts"
   results_dir: "/Users/mukulsherekar/pythonProject/DEGCNN/results"
   # final_report: "tests/data/results/{sample}_final_report.md"
 
@@ -38,7 +38,7 @@ aligners:
     
 parameters:
   step: "all"
-  threads: 8
+  threads: 4
   memory: "8G"
   aligner: "kallisto"  # Default aligner to use
 

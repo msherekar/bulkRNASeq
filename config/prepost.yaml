@@ -8,27 +8,27 @@ input:
   paired_end: false
   
   # Postprocessing inputs
-  counts_file: "tests/data/results/preprocessing/counts_hisat2/${sample}.bam_counts.tsv"
+  counts_file: "tests/data/results/preprocessing/counts_hisat2/${sample}_counts.tsv"
   kallisto_abundance: "tests/data/results/preprocessing/${sample}_kallisto/abundance.tsv"
   kallisto_h5: "tests/data/results/preprocessing/${sample}_kallisto/abundance.h5"
 
 # Output directories
 output:
   # Base output directories
-  pre_results_dir: "tests/data/results/preprocessing"
-  post_results_dir: "tests/data/results/postprocessing"
+  pre_results_dir: "results/preprocessing"
+  post_results_dir: "results/postprocessing"
   
   # Preprocessing specific outputs
-  qc_dir: "${pre_results_dir}/qc"
-  aligned_dir: "${pre_results_dir}/aligned_reads"
-  counts_dir: "${pre_results_dir}/counts"
+  qc_dir: "results/preprocessing/qc"
+  aligned_dir: "results/preprocessing/aligned_reads"
+  counts_dir: "results/preprocessing/counts"
   
-  # Postprocessing specific outputs
-  sample_dir: "${post_results_dir}/${sample}"
-  eda_dir: "${sample_dir}/exploratory"
-  differential_dir: "${sample_dir}/differential"
-  enrichment_dir: "${sample_dir}/enrichment"
-  reports_dir: "${sample_dir}/reports"
+  # Postprocessing specific outputs (using wildcards if needed)
+  sample_dir: "results/postprocessing/{sample}"
+  eda_dir: "results/postprocessing/exploratory"
+  differential_dir: "results/postprocessing/differential"
+  enrichment_dir: "results/postprocessing/enrichment"
+  reports_dir: "results/postprocessing/reports"
 
 # Reference genome information
 genome:
@@ -144,4 +144,4 @@ reports:
   format: "markdown"  # Options: markdown, html, pdf
   include_code: false
   include_session_info: true
-  final_report: "tests/data/results/${sample}_final_report.md"
+  final_report: "results/${sample}_final_report.md"
