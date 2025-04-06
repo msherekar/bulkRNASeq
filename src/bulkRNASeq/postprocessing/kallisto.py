@@ -89,6 +89,12 @@ def main():
     
     # Perform PCA and save the plot.
     perform_pca(expression_data, sample_cols, output_file="PCA_plot.png")
+
+    # Perform t-SNE and save the plot.
+    #perform_tsne(expression_data, sample_cols, output_file="t-SNE_plot.png")
+
+    # Perform UMAP and save the plot.
+    #perform_umap(expression_data, sample_cols, output_file="UMAP_plot.png")
     
     # Plot hierarchical clustering heatmap of sample correlations.
     plot_clustering_heatmap(expression_data, output_file="clustering_heatmap.png")

@@ -94,18 +94,25 @@ def run_featurecounts(bam_file, output_dir, annotation_file, threads=8):
         logger.warning(f"Could not determine if reads are paired-end: {e}")
         is_paired = False
 
-    # Base command without the -p flag
+    # Start base command
     cmd = [
         "featureCounts",
         "-T", str(threads),
+    ]
+
+    # Add -p flag only for paired-end reads
+    if is_paired:
+        cmd.append("-p")
+
+    # Add remaining required arguments
+    cmd += [
         "-a", annotation_file,
         "-o", output_counts,
         bam_file
     ]
+
     
-    # Add -p flag only for paired-end reads
-    if is_paired:
-        cmd.insert(2, "-p")
+
     
     logger.info(f"Running featureCounts for {prefix}...")
     logger.info("Command: " + " ".join(cmd))
